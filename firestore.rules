@@ -1,0 +1,573 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidHandle(handle) {
+      return handle is string && handle.size() >= 3 && handle.size() <= 32 && handle.matches('^[a-z0-9_]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidTimestamp(ts) {
+      return ts is timestamp && ts <= request.time;
+    }
+
+    function isValidInterestsList(listVal) {
+      return listVal is list && listVal.size() <= 12 &&
+             (listVal.size() == 0 || listVal[0] is string);
+    }
+
+    function isValidUserProfile(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.email is string && data.email.size() >= 0 && data.email.size() <= 160 &&
+             data.phoneNumber is string && data.phoneNumber.size() >= 0 && data.phoneNumber.size() <= 30 &&
+             data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 60 &&
+             isValidHandle(data.kelMiHandle) &&
+             data.qqNumber is string && data.qqNumber.size() >= 4 && data.qqNumber.size() <= 16 &&
+             data.gender is string && data.gender.size() >= 1 && data.gender.size() <= 32 &&
+             data.dateOfBirth is string && data.dateOfBirth.size() >= 0 && data.dateOfBirth.size() <= 20 &&
+             data.ageYears is int && data.ageYears >= 0 && data.ageYears <= 130 &&
+             isValidInterestsList(data.interests) &&
+             data.locationLabel is string && data.locationLabel.size() <= 100 &&
+             data.timeZoneId is string && data.timeZoneId.size() <= 64 &&
+             data.preferredLanguage is string && data.preferredLanguage.size() >= 2 && data.preferredLanguage.size() <= 40 &&
+             data.autoTranslateEnabled is bool &&
+             data.profileCompleted is bool &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidUserContact(data) {
+      return isValidId(data.contactUid) &&
+             isValidHandle(data.kelMiHandle) &&
+             data.qqNumber is string && data.qqNumber.size() >= 4 && data.qqNumber.size() <= 16 &&
+             data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 60 &&
+             data.avatarColorHex is string && data.avatarColorHex.size() >= 7 && data.avatarColorHex.size() <= 9 &&
+             data.preferredLanguage is string && data.preferredLanguage.size() >= 2 && data.preferredLanguage.size() <= 40 &&
+             data.gender is string && data.gender.size() >= 1 && data.gender.size() <= 32 &&
+             data.ageYears is int && data.ageYears >= 0 && data.ageYears <= 130 &&
+             isValidInterestsList(data.interests) &&
+             data.locationLabel is string && data.locationLabel.size() <= 100 &&
+             data.timeZoneId is string && data.timeZoneId.size() <= 64 &&
+             data.verifiedSafetyNumber is bool &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidVetnyMessage(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.senderRole in ['USER', 'VETNY'] &&
+             data.originalText is string && data.originalText.size() >= 1 && data.originalText.size() <= 4000 &&
+             (!('translatedText' in data) || (data.translatedText is string && data.translatedText.size() <= 8000)) &&
+             (!('sourceLanguage' in data) || (data.sourceLanguage is string && data.sourceLanguage.size() <= 40)) &&
+             data.targetLanguage is string && data.targetLanguage.size() >= 1 && data.targetLanguage.size() <= 40 &&
+             (!('culturalNote' in data) || (data.culturalNote is string && data.culturalNote.size() <= 500)) &&
+             (!('messageType' in data) || data.messageType in ['TEXT', 'IMAGE']) &&
+             (!('agentMode' in data) || data.agentMode in ['SUPPORT', 'BOOKING', 'TRANSLATE', 'IMAGE', 'SEARCH', 'MAPS', 'VOICE_LIVE']) &&
+             (!('modelUsed' in data) || (data.modelUsed is string && data.modelUsed.size() <= 64)) &&
+             (!('mediaBase64' in data) || (data.mediaBase64 is string && data.mediaBase64.size() <= 320000)) &&
+             (!('groundingJson' in data) || (data.groundingJson is string && data.groundingJson.size() <= 20000)) &&
+             isValidTimestamp(data.createdAt);
+    }
+
+    function isValidHandleIndex(data) {
+      return isValidId(data.userId) &&
+             isValidHandle(data.kelMiHandle) &&
+             data.qqNumber is string && data.qqNumber.size() >= 4 && data.qqNumber.size() <= 16 &&
+             data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 60 &&
+             data.avatarColorHex is string && data.avatarColorHex.size() >= 7 && data.avatarColorHex.size() <= 9 &&
+             data.preferredLanguage is string && data.preferredLanguage.size() >= 2 && data.preferredLanguage.size() <= 40 &&
+             data.gender is string && data.gender.size() >= 1 && data.gender.size() <= 32 &&
+             data.ageYears is int && data.ageYears >= 0 && data.ageYears <= 130 &&
+             isValidInterestsList(data.interests) &&
+             data.locationLabel is string && data.locationLabel.size() <= 100 &&
+             data.timeZoneId is string && data.timeZoneId.size() <= 64 &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidPublicKeyBundle(data) {
+      return isValidId(data.userId) &&
+             isValidHandle(data.kelMiHandle) &&
+             data.qqNumber is string && data.qqNumber.size() >= 4 && data.qqNumber.size() <= 16 &&
+             data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 60 &&
+             data.avatarColorHex is string && data.avatarColorHex.size() >= 7 && data.avatarColorHex.size() <= 9 &&
+             data.preferredLanguage is string && data.preferredLanguage.size() >= 2 && data.preferredLanguage.size() <= 40 &&
+             data.gender is string && data.gender.size() >= 1 && data.gender.size() <= 32 &&
+             data.ageYears is int && data.ageYears >= 0 && data.ageYears <= 130 &&
+             isValidInterestsList(data.interests) &&
+             data.locationLabel is string && data.locationLabel.size() <= 100 &&
+             data.timeZoneId is string && data.timeZoneId.size() <= 64 &&
+             data.identityPublicKey is string && data.identityPublicKey.size() >= 32 && data.identityPublicKey.size() <= 512 &&
+             data.signedPreKeyId is int && data.signedPreKeyId >= 1 &&
+             data.signedPreKeyPublic is string && data.signedPreKeyPublic.size() >= 32 && data.signedPreKeyPublic.size() <= 512 &&
+             data.signedPreKeySignature is string && data.signedPreKeySignature.size() >= 32 && data.signedPreKeySignature.size() <= 512 &&
+             data.safetyFingerprint is string && data.safetyFingerprint.size() >= 16 && data.safetyFingerprint.size() <= 128 &&
+             data.opkCount is int && data.opkCount >= 0 && data.opkCount <= 500 &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidOneTimePreKey(data, expectedOwnerUid) {
+      return data.keyId is int && data.keyId >= 1 &&
+             data.publicKey is string && data.publicKey.size() >= 32 && data.publicKey.size() <= 512 &&
+             data.ownerUid is string && data.ownerUid == expectedOwnerUid &&
+             isValidTimestamp(data.createdAt);
+    }
+
+    function isValidChatThread(data) {
+      return data.participantUids is list &&
+             data.participantUids.size() >= 1 &&
+             data.participantUids.size() <= 2 &&
+             data.participantUids[0] is string &&
+             (data.participantUids.size() == 1 || data.participantUids[1] is string) &&
+             isValidId(data.createdBy) &&
+             (!('lastSenderId' in data) || isValidId(data.lastSenderId)) &&
+             (!('lastMessagePreviewTag' in data) || (data.lastMessagePreviewTag is string && data.lastMessagePreviewTag.size() >= 1 && data.lastMessagePreviewTag.size() <= 64)) &&
+             (!('lastMessageReceiptStatus' in data) || data.lastMessageReceiptStatus in ['SENT', 'DELIVERED', 'READ']) &&
+             (!('lastMessageAt' in data) || isValidTimestamp(data.lastMessageAt)) &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidEncryptedMessage(data) {
+      return isValidId(data.senderId) &&
+             isValidId(data.recipientId) &&
+             data.memberUids is list &&
+             data.memberUids.size() >= 1 &&
+             data.memberUids.size() <= 2 &&
+             data.memberUids[0] is string &&
+             (data.memberUids.size() == 1 || data.memberUids[1] is string) &&
+             data.ciphertext is string && data.ciphertext.size() >= 1 && data.ciphertext.size() <= 16000 &&
+             data.iv is string && data.iv.size() >= 8 && data.iv.size() <= 64 &&
+             data.senderIdentityKey is string && data.senderIdentityKey.size() >= 32 && data.senderIdentityKey.size() <= 512 &&
+             (!('ephemeralKey' in data) || (data.ephemeralKey is string && data.ephemeralKey.size() >= 32 && data.ephemeralKey.size() <= 512)) &&
+             data.ratchetKey is string && data.ratchetKey.size() >= 32 && data.ratchetKey.size() <= 512 &&
+             (!('usedOpkId' in data) || (data.usedOpkId is string && data.usedOpkId.size() >= 1 && data.usedOpkId.size() <= 128)) &&
+             data.messageNumber is int && data.messageNumber >= 0 &&
+             data.previousChainLength is int && data.previousChainLength >= 0 &&
+             data.preKeyMessage is bool &&
+             data.messageType in ['TEXT', 'VOICE_NOTE', 'LOCATION_TIME', 'KEY_CHANGE', 'CALL_LOG'] &&
+             (!('receiptStatus' in data) || data.receiptStatus in ['SENT', 'DELIVERED', 'READ']) &&
+             (!('deliveredAt' in data) || isValidTimestamp(data.deliveredAt)) &&
+             (!('readAt' in data) || isValidTimestamp(data.readAt)) &&
+             isValidTimestamp(data.createdAt);
+    }
+
+    function isValidMomentPost(data) {
+      return isValidId(data.authorId) &&
+             data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 60 &&
+             isValidHandle(data.authorHandle) &&
+             data.authorAvatarColor is string && data.authorAvatarColor.size() >= 7 && data.authorAvatarColor.size() <= 9 &&
+             data.content is string && data.content.size() >= 1 && data.content.size() <= 1000 &&
+             (!('languageTag' in data) || (data.languageTag is string && data.languageTag.size() >= 2 && data.languageTag.size() <= 40)) &&
+             (!('locationTag' in data) || (data.locationTag is string && data.locationTag.size() <= 100)) &&
+             data.visibleToUids is list && data.visibleToUids.size() >= 1 && data.visibleToUids.size() <= 50 &&
+             data.visibleToUids[0] is string &&
+             data.likedByUids is list && data.likedByUids.size() <= 50 &&
+             (data.likedByUids.size() == 0 || data.likedByUids[0] is string) &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidCallSession(data) {
+      return isValidId(data.callerId) &&
+             isValidId(data.calleeId) &&
+             data.memberUids is list &&
+             data.memberUids.size() >= 1 &&
+             data.memberUids.size() <= 2 &&
+             data.memberUids[0] is string &&
+             (data.memberUids.size() == 1 || data.memberUids[1] is string) &&
+             data.callType in ['VOICE', 'VIDEO'] &&
+             data.status in ['RINGING', 'ACTIVE', 'ENDED', 'DECLINED'] &&
+             data.e2eeFingerprint is string && data.e2eeFingerprint.size() >= 8 && data.e2eeFingerprint.size() <= 128 &&
+             data.durationSeconds is int && data.durationSeconds >= 0 && data.durationSeconds <= 86400 &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidReelPost(data) {
+      return isValidId(data.authorId) &&
+             data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 60 &&
+             isValidHandle(data.authorHandle) &&
+             data.authorAvatarColor is string && data.authorAvatarColor.size() >= 7 && data.authorAvatarColor.size() <= 9 &&
+             data.caption is string && data.caption.size() >= 1 && data.caption.size() <= 600 &&
+             data.mediaType in ['IMAGE', 'VIDEO'] &&
+             (!('mediaBase64' in data) || (data.mediaBase64 is string && data.mediaBase64.size() <= 260000)) &&
+             (!('localMediaUri' in data) || (data.localMediaUri is string && data.localMediaUri.size() <= 512)) &&
+             data.durationSeconds is int && data.durationSeconds >= 0 && data.durationSeconds <= 600 &&
+             (!('songId' in data) || (data.songId is string && data.songId.size() <= 64)) &&
+             (!('songTitle' in data) || (data.songTitle is string && data.songTitle.size() <= 80)) &&
+             (!('songArtist' in data) || (data.songArtist is string && data.songArtist.size() <= 80)) &&
+             (!('languageTag' in data) || (data.languageTag is string && data.languageTag.size() >= 2 && data.languageTag.size() <= 40)) &&
+             (!('locationTag' in data) || (data.locationTag is string && data.locationTag.size() <= 100)) &&
+             (!('filterName' in data) || (data.filterName is string && data.filterName.size() <= 32)) &&
+             data.visibility in ['PUBLIC', 'CONTACTS'] &&
+             data.visibleToUids is list && data.visibleToUids.size() >= 1 && data.visibleToUids.size() <= 50 &&
+             data.visibleToUids[0] is string &&
+             data.likedByUids is list && data.likedByUids.size() <= 50 &&
+             (data.likedByUids.size() == 0 || data.likedByUids[0] is string) &&
+             data.bookmarkedByUids is list && data.bookmarkedByUids.size() <= 50 &&
+             (data.bookmarkedByUids.size() == 0 || data.bookmarkedByUids[0] is string) &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidReelComment(data) {
+      return isValidId(data.authorId) &&
+             data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 60 &&
+             isValidHandle(data.authorHandle) &&
+             data.authorAvatarColor is string && data.authorAvatarColor.size() >= 7 && data.authorAvatarColor.size() <= 9 &&
+             data.text is string && data.text.size() >= 1 && data.text.size() <= 500 &&
+             isValidTimestamp(data.createdAt);
+    }
+
+    function isValidStoryPost(data) {
+      return isValidId(data.authorId) &&
+             data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 60 &&
+             isValidHandle(data.authorHandle) &&
+             data.authorAvatarColor is string && data.authorAvatarColor.size() >= 7 && data.authorAvatarColor.size() <= 9 &&
+             data.caption is string && data.caption.size() >= 1 && data.caption.size() <= 280 &&
+             (!('mediaBase64' in data) || (data.mediaBase64 is string && data.mediaBase64.size() <= 260000)) &&
+             (!('songTitle' in data) || (data.songTitle is string && data.songTitle.size() <= 80)) &&
+             (!('locationTag' in data) || (data.locationTag is string && data.locationTag.size() <= 100)) &&
+             data.visibility in ['PUBLIC', 'CONTACTS'] &&
+             data.visibleToUids is list && data.visibleToUids.size() >= 1 && data.visibleToUids.size() <= 50 &&
+             data.visibleToUids[0] is string &&
+             data.viewedByUids is list && data.viewedByUids.size() <= 50 &&
+             (data.viewedByUids.size() == 0 || data.viewedByUids[0] is string) &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidOnlineUser(data) {
+      return isValidId(data.userId) &&
+             isValidHandle(data.kelMiHandle) &&
+             data.qqNumber is string && data.qqNumber.size() >= 4 && data.qqNumber.size() <= 16 &&
+             data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 60 &&
+             data.avatarColorHex is string && data.avatarColorHex.size() >= 7 && data.avatarColorHex.size() <= 9 &&
+             data.preferredLanguage is string && data.preferredLanguage.size() >= 2 && data.preferredLanguage.size() <= 40 &&
+             data.gender is string && data.gender.size() >= 1 && data.gender.size() <= 32 &&
+             data.ageYears is int && data.ageYears >= 0 && data.ageYears <= 130 &&
+             isValidInterestsList(data.interests) &&
+             data.locationLabel is string && data.locationLabel.size() <= 100 &&
+             data.timeZoneId is string && data.timeZoneId.size() <= 64 &&
+             data.onlineStatus in ['ONLINE', 'AWAY'] &&
+             data.discoverable is bool &&
+             isValidTimestamp(data.lastActiveAt) &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidId(userId) &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().keys().hasAll(['userId', 'email', 'phoneNumber', 'displayName', 'kelMiHandle', 'qqNumber', 'gender', 'dateOfBirth', 'ageYears', 'interests', 'locationLabel', 'timeZoneId', 'preferredLanguage', 'autoTranslateEnabled', 'profileCompleted', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['userId', 'email', 'phoneNumber', 'displayName', 'kelMiHandle', 'qqNumber', 'gender', 'dateOfBirth', 'ageYears', 'interests', 'locationLabel', 'timeZoneId', 'preferredLanguage', 'autoTranslateEnabled', 'profileCompleted', 'createdAt', 'updatedAt']) &&
+                       isValidUserProfile(incoming());
+      allow update: if isOwner(userId) && isValidId(userId) &&
+                       isValidUserProfile(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().qqNumber == existing().qqNumber &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['email', 'phoneNumber', 'displayName', 'kelMiHandle', 'gender', 'dateOfBirth', 'ageYears', 'interests', 'locationLabel', 'timeZoneId', 'preferredLanguage', 'autoTranslateEnabled', 'profileCompleted', 'updatedAt']);
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      match /contacts/{contactUid} {
+        allow get: if isOwner(userId) && isValidId(contactUid);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(contactUid) &&
+                         incoming().contactUid == contactUid &&
+                         incoming().keys().hasAll(['contactUid', 'kelMiHandle', 'qqNumber', 'displayName', 'avatarColorHex', 'preferredLanguage', 'gender', 'ageYears', 'interests', 'locationLabel', 'timeZoneId', 'verifiedSafetyNumber', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['contactUid', 'kelMiHandle', 'qqNumber', 'displayName', 'avatarColorHex', 'preferredLanguage', 'gender', 'ageYears', 'interests', 'locationLabel', 'timeZoneId', 'verifiedSafetyNumber', 'createdAt', 'updatedAt']) &&
+                         isValidUserContact(incoming());
+        allow update: if isOwner(userId) && isValidId(contactUid) &&
+                         isValidUserContact(incoming()) &&
+                         incoming().contactUid == existing().contactUid &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['kelMiHandle', 'qqNumber', 'displayName', 'avatarColorHex', 'preferredLanguage', 'gender', 'ageYears', 'interests', 'locationLabel', 'timeZoneId', 'verifiedSafetyNumber', 'updatedAt']);
+        allow delete: if isOwner(userId) && isValidId(contactUid);
+      }
+
+      match /vetnyMessages/{messageId} {
+        allow get: if isOwner(userId) && isValidId(messageId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(messageId) &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().keys().hasAll(['userId', 'senderRole', 'originalText', 'targetLanguage', 'createdAt']) &&
+                         incoming().keys().hasOnly(['userId', 'senderRole', 'originalText', 'translatedText', 'sourceLanguage', 'targetLanguage', 'culturalNote', 'messageType', 'agentMode', 'modelUsed', 'mediaBase64', 'groundingJson', 'createdAt']) &&
+                         isValidVetnyMessage(incoming());
+        allow update: if false;
+        allow delete: if isOwner(userId) && isValidId(messageId);
+      }
+    }
+
+    match /handles/{handle} {
+      allow get: if isSignedIn() && isValidId(handle);
+      allow list: if false;
+      allow create: if isSignedIn() && isValidId(handle) && isValidHandle(handle) &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().kelMiHandle == handle &&
+                       incoming().keys().hasAll(['userId', 'kelMiHandle', 'qqNumber', 'displayName', 'avatarColorHex', 'preferredLanguage', 'gender', 'ageYears', 'interests', 'locationLabel', 'timeZoneId', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['userId', 'kelMiHandle', 'qqNumber', 'displayName', 'avatarColorHex', 'preferredLanguage', 'gender', 'ageYears', 'interests', 'locationLabel', 'timeZoneId', 'createdAt', 'updatedAt']) &&
+                       isValidHandleIndex(incoming());
+      allow update: if isSignedIn() && isValidId(handle) &&
+                       existing().userId == request.auth.uid &&
+                       isValidHandleIndex(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().kelMiHandle == existing().kelMiHandle &&
+                       incoming().qqNumber == existing().qqNumber &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'avatarColorHex', 'preferredLanguage', 'gender', 'ageYears', 'interests', 'locationLabel', 'timeZoneId', 'updatedAt']);
+      allow delete: if isSignedIn() && isValidId(handle) && existing().userId == request.auth.uid;
+    }
+
+    match /directory/{userId} {
+      allow get: if isSignedIn() && isValidId(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && isValidId(userId) &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().keys().hasAll(['userId', 'kelMiHandle', 'qqNumber', 'displayName', 'avatarColorHex', 'preferredLanguage', 'gender', 'ageYears', 'interests', 'locationLabel', 'timeZoneId', 'identityPublicKey', 'signedPreKeyId', 'signedPreKeyPublic', 'signedPreKeySignature', 'safetyFingerprint', 'opkCount', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['userId', 'kelMiHandle', 'qqNumber', 'displayName', 'avatarColorHex', 'preferredLanguage', 'gender', 'ageYears', 'interests', 'locationLabel', 'timeZoneId', 'identityPublicKey', 'signedPreKeyId', 'signedPreKeyPublic', 'signedPreKeySignature', 'safetyFingerprint', 'opkCount', 'createdAt', 'updatedAt']) &&
+                       isValidPublicKeyBundle(incoming());
+      allow update: if isOwner(userId) && isValidId(userId) &&
+                       isValidPublicKeyBundle(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().qqNumber == existing().qqNumber &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['kelMiHandle', 'displayName', 'avatarColorHex', 'preferredLanguage', 'gender', 'ageYears', 'interests', 'locationLabel', 'timeZoneId', 'identityPublicKey', 'signedPreKeyId', 'signedPreKeyPublic', 'signedPreKeySignature', 'safetyFingerprint', 'opkCount', 'updatedAt']);
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      match /oneTimePreKeys/{keyId} {
+        allow get: if isSignedIn() && isValidId(userId) && isValidId(keyId);
+        allow list: if isOwner(userId) || (isSignedIn() && request.query.limit <= 1);
+        allow create: if isOwner(userId) && isValidId(userId) && isValidId(keyId) &&
+                         incoming().keys().hasAll(['keyId', 'publicKey', 'ownerUid', 'createdAt']) &&
+                         incoming().keys().hasOnly(['keyId', 'publicKey', 'ownerUid', 'createdAt']) &&
+                         isValidOneTimePreKey(incoming(), userId);
+        allow update: if false;
+        allow delete: if isSignedIn() && isValidId(userId) && isValidId(keyId);
+      }
+    }
+
+    match /chats/{chatId} {
+      allow get: if isSignedIn() && isValidId(chatId) && request.auth.uid in existing().participantUids;
+      allow list: if isSignedIn() && request.auth.uid in existing().participantUids;
+      allow create: if isSignedIn() && isValidId(chatId) &&
+                       incoming().createdBy == request.auth.uid &&
+                       request.auth.uid in incoming().participantUids &&
+                       incoming().keys().hasAll(['participantUids', 'createdBy', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['participantUids', 'createdBy', 'lastSenderId', 'lastMessagePreviewTag', 'lastMessageReceiptStatus', 'lastMessageAt', 'createdAt', 'updatedAt']) &&
+                       isValidChatThread(incoming());
+      allow update: if isSignedIn() && isValidId(chatId) &&
+                       request.auth.uid in existing().participantUids &&
+                       isValidChatThread(incoming()) &&
+                       incoming().participantUids == existing().participantUids &&
+                       incoming().createdBy == existing().createdBy &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['lastSenderId', 'lastMessagePreviewTag', 'lastMessageReceiptStatus', 'lastMessageAt', 'updatedAt']);
+      allow delete: if isSignedIn() && isValidId(chatId) && request.auth.uid in existing().participantUids;
+
+      match /messages/{messageId} {
+        allow get: if isSignedIn() && isValidId(chatId) && isValidId(messageId) && request.auth.uid in existing().memberUids;
+        allow list: if isSignedIn() && request.auth.uid in existing().memberUids;
+        allow create: if isSignedIn() && isValidId(chatId) && isValidId(messageId) &&
+                         incoming().senderId == request.auth.uid &&
+                         request.auth.uid in incoming().memberUids &&
+                         incoming().keys().hasAll(['senderId', 'recipientId', 'memberUids', 'ciphertext', 'iv', 'senderIdentityKey', 'ratchetKey', 'messageNumber', 'previousChainLength', 'preKeyMessage', 'messageType', 'createdAt']) &&
+                         incoming().keys().hasOnly(['senderId', 'recipientId', 'memberUids', 'ciphertext', 'iv', 'senderIdentityKey', 'ephemeralKey', 'ratchetKey', 'usedOpkId', 'messageNumber', 'previousChainLength', 'preKeyMessage', 'messageType', 'receiptStatus', 'deliveredAt', 'readAt', 'createdAt']) &&
+                         (!('receiptStatus' in incoming()) || incoming().receiptStatus == 'SENT') &&
+                         isValidEncryptedMessage(incoming()) &&
+                         exists(/databases/$(database)/documents/chats/$(chatId)) &&
+                         request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participantUids &&
+                         incoming().memberUids == get(/databases/$(database)/documents/chats/$(chatId)).data.participantUids;
+        allow update: if isSignedIn() && isValidId(chatId) && isValidId(messageId) &&
+                         request.auth.uid in existing().memberUids &&
+                         existing().recipientId == request.auth.uid &&
+                         isValidEncryptedMessage(incoming()) &&
+                         incoming().senderId == existing().senderId &&
+                         incoming().recipientId == existing().recipientId &&
+                         incoming().memberUids == existing().memberUids &&
+                         incoming().ciphertext == existing().ciphertext &&
+                         incoming().iv == existing().iv &&
+                         incoming().senderIdentityKey == existing().senderIdentityKey &&
+                         incoming().get('ephemeralKey', null) == existing().get('ephemeralKey', null) &&
+                         incoming().ratchetKey == existing().ratchetKey &&
+                         incoming().get('usedOpkId', null) == existing().get('usedOpkId', null) &&
+                         incoming().messageNumber == existing().messageNumber &&
+                         incoming().previousChainLength == existing().previousChainLength &&
+                         incoming().preKeyMessage == existing().preKeyMessage &&
+                         incoming().messageType == existing().messageType &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['receiptStatus', 'deliveredAt', 'readAt']) &&
+                         incoming().receiptStatus in ['DELIVERED', 'READ'] &&
+                         (!('receiptStatus' in existing()) || existing().receiptStatus != 'READ' || incoming().receiptStatus == 'READ');
+        allow delete: if isSignedIn() && isValidId(chatId) && isValidId(messageId) && existing().senderId == request.auth.uid;
+      }
+
+      match /calls/{callId} {
+        allow get: if isSignedIn() && isValidId(chatId) && isValidId(callId) && request.auth.uid in existing().memberUids;
+        allow list: if isSignedIn() && request.auth.uid in existing().memberUids;
+        allow create: if isSignedIn() && isValidId(chatId) && isValidId(callId) &&
+                         incoming().callerId == request.auth.uid &&
+                         request.auth.uid in incoming().memberUids &&
+                         incoming().keys().hasAll(['callerId', 'calleeId', 'memberUids', 'callType', 'status', 'e2eeFingerprint', 'durationSeconds', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['callerId', 'calleeId', 'memberUids', 'callType', 'status', 'e2eeFingerprint', 'durationSeconds', 'createdAt', 'updatedAt']) &&
+                         isValidCallSession(incoming()) &&
+                         exists(/databases/$(database)/documents/chats/$(chatId)) &&
+                         request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participantUids &&
+                         incoming().memberUids == get(/databases/$(database)/documents/chats/$(chatId)).data.participantUids;
+        allow update: if isSignedIn() && isValidId(chatId) && isValidId(callId) &&
+                         request.auth.uid in existing().memberUids &&
+                         isValidCallSession(incoming()) &&
+                         incoming().callerId == existing().callerId &&
+                         incoming().calleeId == existing().calleeId &&
+                         incoming().memberUids == existing().memberUids &&
+                         incoming().callType == existing().callType &&
+                         incoming().e2eeFingerprint == existing().e2eeFingerprint &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['status', 'durationSeconds', 'updatedAt']);
+        allow delete: if isSignedIn() && isValidId(chatId) && isValidId(callId) && existing().callerId == request.auth.uid;
+      }
+    }
+
+    match /moments/{momentId} {
+      allow get: if isSignedIn() && isValidId(momentId) && request.auth.uid in existing().visibleToUids;
+      allow list: if isSignedIn() && request.auth.uid in existing().visibleToUids;
+      allow create: if isSignedIn() && isValidId(momentId) &&
+                       incoming().authorId == request.auth.uid &&
+                       request.auth.uid in incoming().visibleToUids &&
+                       incoming().keys().hasAll(['authorId', 'authorName', 'authorHandle', 'authorAvatarColor', 'content', 'visibleToUids', 'likedByUids', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['authorId', 'authorName', 'authorHandle', 'authorAvatarColor', 'content', 'languageTag', 'locationTag', 'visibleToUids', 'likedByUids', 'createdAt', 'updatedAt']) &&
+                       isValidMomentPost(incoming());
+      allow update: if isSignedIn() && isValidId(momentId) &&
+                       isValidMomentPost(incoming()) &&
+                       incoming().authorId == existing().authorId &&
+                       incoming().authorName == existing().authorName &&
+                       incoming().authorHandle == existing().authorHandle &&
+                       incoming().authorAvatarColor == existing().authorAvatarColor &&
+                       incoming().visibleToUids == existing().visibleToUids &&
+                       incoming().createdAt == existing().createdAt && (
+                         (request.auth.uid in existing().visibleToUids &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['likedByUids', 'updatedAt'])) ||
+                         (existing().authorId == request.auth.uid &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['content', 'languageTag', 'locationTag', 'updatedAt']))
+                       );
+      allow delete: if isSignedIn() && isValidId(momentId) && existing().authorId == request.auth.uid;
+    }
+
+    match /reels/{reelId} {
+      allow get: if isSignedIn() && isValidId(reelId) && (existing().visibility == 'PUBLIC' || request.auth.uid in existing().visibleToUids);
+      allow list: if isSignedIn() && (existing().visibility == 'PUBLIC' || request.auth.uid in existing().visibleToUids);
+      allow create: if isSignedIn() && isValidId(reelId) &&
+                       incoming().authorId == request.auth.uid &&
+                       request.auth.uid in incoming().visibleToUids &&
+                       incoming().keys().hasAll(['authorId', 'authorName', 'authorHandle', 'authorAvatarColor', 'caption', 'mediaType', 'durationSeconds', 'visibility', 'visibleToUids', 'likedByUids', 'bookmarkedByUids', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['authorId', 'authorName', 'authorHandle', 'authorAvatarColor', 'caption', 'mediaType', 'mediaBase64', 'localMediaUri', 'durationSeconds', 'songId', 'songTitle', 'songArtist', 'languageTag', 'locationTag', 'filterName', 'visibility', 'visibleToUids', 'likedByUids', 'bookmarkedByUids', 'createdAt', 'updatedAt']) &&
+                       isValidReelPost(incoming());
+      allow update: if isSignedIn() && isValidId(reelId) &&
+                       isValidReelPost(incoming()) &&
+                       incoming().authorId == existing().authorId &&
+                       incoming().authorName == existing().authorName &&
+                       incoming().authorHandle == existing().authorHandle &&
+                       incoming().authorAvatarColor == existing().authorAvatarColor &&
+                       incoming().mediaType == existing().mediaType &&
+                       incoming().visibility == existing().visibility &&
+                       incoming().visibleToUids == existing().visibleToUids &&
+                       incoming().createdAt == existing().createdAt && (
+                         ((existing().visibility == 'PUBLIC' || request.auth.uid in existing().visibleToUids) &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['likedByUids', 'bookmarkedByUids', 'updatedAt'])) ||
+                         (existing().authorId == request.auth.uid &&
+                          incoming().diff(existing()).affectedKeys().hasOnly(['caption', 'songId', 'songTitle', 'songArtist', 'languageTag', 'locationTag', 'filterName', 'updatedAt']))
+                       );
+      allow delete: if isSignedIn() && isValidId(reelId) && existing().authorId == request.auth.uid;
+
+      match /comments/{commentId} {
+        allow get: if isSignedIn() && isValidId(reelId) && isValidId(commentId) &&
+                      exists(/databases/$(database)/documents/reels/$(reelId)) &&
+                      (get(/databases/$(database)/documents/reels/$(reelId)).data.visibility == 'PUBLIC' ||
+                       request.auth.uid in get(/databases/$(database)/documents/reels/$(reelId)).data.visibleToUids);
+        allow list: if isSignedIn() && isValidId(reelId) &&
+                       exists(/databases/$(database)/documents/reels/$(reelId)) &&
+                       (get(/databases/$(database)/documents/reels/$(reelId)).data.visibility == 'PUBLIC' ||
+                        request.auth.uid in get(/databases/$(database)/documents/reels/$(reelId)).data.visibleToUids);
+        allow create: if isSignedIn() && isValidId(reelId) && isValidId(commentId) &&
+                         incoming().authorId == request.auth.uid &&
+                         incoming().keys().hasAll(['authorId', 'authorName', 'authorHandle', 'authorAvatarColor', 'text', 'createdAt']) &&
+                         incoming().keys().hasOnly(['authorId', 'authorName', 'authorHandle', 'authorAvatarColor', 'text', 'createdAt']) &&
+                         isValidReelComment(incoming()) &&
+                         exists(/databases/$(database)/documents/reels/$(reelId)) &&
+                         (get(/databases/$(database)/documents/reels/$(reelId)).data.visibility == 'PUBLIC' ||
+                          request.auth.uid in get(/databases/$(database)/documents/reels/$(reelId)).data.visibleToUids);
+        allow update: if false;
+        allow delete: if isSignedIn() && isValidId(reelId) && isValidId(commentId) &&
+                         (existing().authorId == request.auth.uid ||
+                          get(/databases/$(database)/documents/reels/$(reelId)).data.authorId == request.auth.uid);
+      }
+    }
+
+    match /stories/{storyId} {
+      allow get: if isSignedIn() && isValidId(storyId) && (existing().visibility == 'PUBLIC' || request.auth.uid in existing().visibleToUids);
+      allow list: if isSignedIn() && (existing().visibility == 'PUBLIC' || request.auth.uid in existing().visibleToUids);
+      allow create: if isSignedIn() && isValidId(storyId) &&
+                       incoming().authorId == request.auth.uid &&
+                       request.auth.uid in incoming().visibleToUids &&
+                       incoming().keys().hasAll(['authorId', 'authorName', 'authorHandle', 'authorAvatarColor', 'caption', 'visibility', 'visibleToUids', 'viewedByUids', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['authorId', 'authorName', 'authorHandle', 'authorAvatarColor', 'caption', 'mediaBase64', 'songTitle', 'locationTag', 'visibility', 'visibleToUids', 'viewedByUids', 'createdAt', 'updatedAt']) &&
+                       isValidStoryPost(incoming());
+      allow update: if isSignedIn() && isValidId(storyId) &&
+                       isValidStoryPost(incoming()) &&
+                       incoming().authorId == existing().authorId &&
+                       incoming().authorName == existing().authorName &&
+                       incoming().authorHandle == existing().authorHandle &&
+                       incoming().authorAvatarColor == existing().authorAvatarColor &&
+                       incoming().caption == existing().caption &&
+                       incoming().visibility == existing().visibility &&
+                       incoming().visibleToUids == existing().visibleToUids &&
+                       incoming().createdAt == existing().createdAt &&
+                       (existing().visibility == 'PUBLIC' || request.auth.uid in existing().visibleToUids) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['viewedByUids', 'updatedAt']);
+      allow delete: if isSignedIn() && isValidId(storyId) && existing().authorId == request.auth.uid;
+    }
+
+    match /onlineUsers/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && (existing().discoverable == true || isOwner(userId));
+      allow list: if isSignedIn() && existing().discoverable == true && request.query.limit <= 50;
+      allow create: if isOwner(userId) && isValidId(userId) &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().keys().hasAll(['userId', 'kelMiHandle', 'qqNumber', 'displayName', 'avatarColorHex', 'preferredLanguage', 'gender', 'ageYears', 'interests', 'locationLabel', 'timeZoneId', 'onlineStatus', 'discoverable', 'lastActiveAt', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['userId', 'kelMiHandle', 'qqNumber', 'displayName', 'avatarColorHex', 'preferredLanguage', 'gender', 'ageYears', 'interests', 'locationLabel', 'timeZoneId', 'onlineStatus', 'discoverable', 'lastActiveAt', 'createdAt', 'updatedAt']) &&
+                       isValidOnlineUser(incoming());
+      allow update: if isOwner(userId) && isValidId(userId) &&
+                       isValidOnlineUser(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().qqNumber == existing().qqNumber &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['kelMiHandle', 'displayName', 'avatarColorHex', 'preferredLanguage', 'gender', 'ageYears', 'interests', 'locationLabel', 'timeZoneId', 'onlineStatus', 'discoverable', 'lastActiveAt', 'updatedAt']);
+      allow delete: if isOwner(userId) && isValidId(userId);
+    }
+  }
+}

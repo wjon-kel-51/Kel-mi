@@ -1,0 +1,313 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Private user account profile, PII, interests, DOB/age, location, and translation preferences (owner-only).",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "email": { "type": "string" },
+        "phoneNumber": { "type": "string" },
+        "displayName": { "type": "string" },
+        "kelMiHandle": { "type": "string" },
+        "qqNumber": { "type": "string" },
+        "gender": { "type": "string" },
+        "dateOfBirth": { "type": "string" },
+        "ageYears": { "type": "integer" },
+        "interests": { "type": "array" },
+        "locationLabel": { "type": "string" },
+        "timeZoneId": { "type": "string" },
+        "preferredLanguage": { "type": "string" },
+        "autoTranslateEnabled": { "type": "boolean" },
+        "profileCompleted": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "email", "phoneNumber", "displayName", "kelMiHandle", "qqNumber", "gender", "dateOfBirth", "ageYears", "interests", "locationLabel", "timeZoneId", "preferredLanguage", "autoTranslateEnabled", "profileCompleted", "createdAt", "updatedAt"]
+    },
+    "UserContact": {
+      "title": "UserContact",
+      "description": "Saved contact entry owned by a user.",
+      "type": "object",
+      "properties": {
+        "contactUid": { "type": "string" },
+        "kelMiHandle": { "type": "string" },
+        "qqNumber": { "type": "string" },
+        "displayName": { "type": "string" },
+        "avatarColorHex": { "type": "string" },
+        "preferredLanguage": { "type": "string" },
+        "gender": { "type": "string" },
+        "ageYears": { "type": "integer" },
+        "interests": { "type": "array" },
+        "locationLabel": { "type": "string" },
+        "timeZoneId": { "type": "string" },
+        "verifiedSafetyNumber": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["contactUid", "kelMiHandle", "qqNumber", "displayName", "avatarColorHex", "preferredLanguage", "gender", "ageYears", "interests", "locationLabel", "timeZoneId", "verifiedSafetyNumber", "createdAt", "updatedAt"]
+    },
+    "VetnyMessage": {
+      "title": "VetnyMessage",
+      "description": "User's context-aware conversation, booking assistant, and AI-generated photo history with Vetny AI.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "senderRole": { "type": "string", "enum": ["USER", "VETNY"] },
+        "originalText": { "type": "string" },
+        "translatedText": { "type": "string" },
+        "sourceLanguage": { "type": "string" },
+        "targetLanguage": { "type": "string" },
+        "culturalNote": { "type": "string" },
+        "messageType": { "type": "string", "enum": ["TEXT", "IMAGE"] },
+        "agentMode": { "type": "string", "enum": ["SUPPORT", "BOOKING", "TRANSLATE", "IMAGE", "SEARCH", "MAPS", "VOICE_LIVE"] },
+        "modelUsed": { "type": "string" },
+        "mediaBase64": { "type": "string" },
+        "groundingJson": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "senderRole", "originalText", "targetLanguage", "createdAt"]
+    },
+    "HandleIndex": {
+      "title": "HandleIndex",
+      "description": "Public handle-to-UID index without sensitive PII (no email/phone/DOB).",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "kelMiHandle": { "type": "string" },
+        "qqNumber": { "type": "string" },
+        "displayName": { "type": "string" },
+        "avatarColorHex": { "type": "string" },
+        "preferredLanguage": { "type": "string" },
+        "gender": { "type": "string" },
+        "ageYears": { "type": "integer" },
+        "interests": { "type": "array" },
+        "locationLabel": { "type": "string" },
+        "timeZoneId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "kelMiHandle", "qqNumber", "displayName", "avatarColorHex", "preferredLanguage", "gender", "ageYears", "interests", "locationLabel", "timeZoneId", "createdAt", "updatedAt"]
+    },
+    "PublicPreKeyBundle": {
+      "title": "PublicPreKeyBundle",
+      "description": "Signal Protocol public key bundle and public profile card (no sensitive PII).",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "kelMiHandle": { "type": "string" },
+        "qqNumber": { "type": "string" },
+        "displayName": { "type": "string" },
+        "avatarColorHex": { "type": "string" },
+        "preferredLanguage": { "type": "string" },
+        "gender": { "type": "string" },
+        "ageYears": { "type": "integer" },
+        "interests": { "type": "array" },
+        "locationLabel": { "type": "string" },
+        "timeZoneId": { "type": "string" },
+        "identityPublicKey": { "type": "string" },
+        "signedPreKeyId": { "type": "integer" },
+        "signedPreKeyPublic": { "type": "string" },
+        "signedPreKeySignature": { "type": "string" },
+        "safetyFingerprint": { "type": "string" },
+        "opkCount": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "kelMiHandle", "qqNumber", "displayName", "avatarColorHex", "preferredLanguage", "gender", "ageYears", "interests", "locationLabel", "timeZoneId", "identityPublicKey", "signedPreKeyId", "signedPreKeyPublic", "signedPreKeySignature", "safetyFingerprint", "opkCount", "createdAt", "updatedAt"]
+    },
+    "OneTimePreKey": {
+      "title": "OneTimePreKey",
+      "description": "Single-use Signal Protocol One-Time PreKey for X3DH agreement.",
+      "type": "object",
+      "properties": {
+        "keyId": { "type": "integer" },
+        "publicKey": { "type": "string" },
+        "ownerUid": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["keyId", "publicKey", "ownerUid", "createdAt"]
+    },
+    "ChatThread": {
+      "title": "ChatThread",
+      "description": "Encrypted 1:1 or self-vault chat thread metadata (no plaintext).",
+      "type": "object",
+      "properties": {
+        "participantUids": { "type": "array" },
+        "createdBy": { "type": "string" },
+        "lastSenderId": { "type": "string" },
+        "lastMessagePreviewTag": { "type": "string" },
+        "lastMessageReceiptStatus": { "type": "string", "enum": ["SENT", "DELIVERED", "READ"] },
+        "lastMessageAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["participantUids", "createdBy", "createdAt", "updatedAt"]
+    },
+    "EncryptedMessage": {
+      "title": "EncryptedMessage",
+      "description": "Signal Protocol encrypted message envelope (zero plaintext stored in Firestore).",
+      "type": "object",
+      "properties": {
+        "senderId": { "type": "string" },
+        "recipientId": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "ciphertext": { "type": "string" },
+        "iv": { "type": "string" },
+        "senderIdentityKey": { "type": "string" },
+        "ephemeralKey": { "type": "string" },
+        "ratchetKey": { "type": "string" },
+        "usedOpkId": { "type": "string" },
+        "messageNumber": { "type": "integer" },
+        "previousChainLength": { "type": "integer" },
+        "preKeyMessage": { "type": "boolean" },
+        "messageType": { "type": "string", "enum": ["TEXT", "VOICE_NOTE", "LOCATION_TIME", "KEY_CHANGE", "CALL_LOG"] },
+        "receiptStatus": { "type": "string", "enum": ["SENT", "DELIVERED", "READ"] },
+        "deliveredAt": { "type": "string", "format": "date-time" },
+        "readAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["senderId", "recipientId", "memberUids", "ciphertext", "iv", "senderIdentityKey", "ratchetKey", "messageNumber", "previousChainLength", "preKeyMessage", "messageType", "createdAt"]
+    },
+    "MomentPost": {
+      "title": "MomentPost",
+      "description": "WeChat/QQ-inspired Moments update visible to selected contacts.",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorHandle": { "type": "string" },
+        "authorAvatarColor": { "type": "string" },
+        "content": { "type": "string" },
+        "languageTag": { "type": "string" },
+        "locationTag": { "type": "string" },
+        "visibleToUids": { "type": "array" },
+        "likedByUids": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorId", "authorName", "authorHandle", "authorAvatarColor", "content", "visibleToUids", "likedByUids", "createdAt", "updatedAt"]
+    },
+    "CallSession": {
+      "title": "CallSession",
+      "description": "E2EE voice and video call signaling metadata inside an encrypted chat.",
+      "type": "object",
+      "properties": {
+        "callerId": { "type": "string" },
+        "calleeId": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "callType": { "type": "string", "enum": ["VOICE", "VIDEO"] },
+        "status": { "type": "string", "enum": ["RINGING", "ACTIVE", "ENDED", "DECLINED"] },
+        "e2eeFingerprint": { "type": "string" },
+        "durationSeconds": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["callerId", "calleeId", "memberUids", "callType", "status", "e2eeFingerprint", "durationSeconds", "createdAt", "updatedAt"]
+    },
+    "ReelPost": {
+      "title": "ReelPost",
+      "description": "Short video or photo Reel with optional in-app music track and Vetny translation support.",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorHandle": { "type": "string" },
+        "authorAvatarColor": { "type": "string" },
+        "caption": { "type": "string" },
+        "mediaType": { "type": "string", "enum": ["IMAGE", "VIDEO"] },
+        "mediaBase64": { "type": "string" },
+        "localMediaUri": { "type": "string" },
+        "durationSeconds": { "type": "integer" },
+        "songId": { "type": "string" },
+        "songTitle": { "type": "string" },
+        "songArtist": { "type": "string" },
+        "languageTag": { "type": "string" },
+        "locationTag": { "type": "string" },
+        "filterName": { "type": "string" },
+        "visibility": { "type": "string", "enum": ["PUBLIC", "CONTACTS"] },
+        "visibleToUids": { "type": "array" },
+        "likedByUids": { "type": "array" },
+        "bookmarkedByUids": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorId", "authorName", "authorHandle", "authorAvatarColor", "caption", "mediaType", "durationSeconds", "visibility", "visibleToUids", "likedByUids", "bookmarkedByUids", "createdAt", "updatedAt"]
+    },
+    "ReelComment": {
+      "title": "ReelComment",
+      "description": "Instagram-style comment on a Reel post.",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorHandle": { "type": "string" },
+        "authorAvatarColor": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorId", "authorName", "authorHandle", "authorAvatarColor", "text", "createdAt"]
+    },
+    "StoryPost": {
+      "title": "StoryPost",
+      "description": "Instagram-style Story update with photo, music tag, location, and view tracking.",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorHandle": { "type": "string" },
+        "authorAvatarColor": { "type": "string" },
+        "caption": { "type": "string" },
+        "mediaBase64": { "type": "string" },
+        "songTitle": { "type": "string" },
+        "locationTag": { "type": "string" },
+        "visibility": { "type": "string", "enum": ["PUBLIC", "CONTACTS"] },
+        "visibleToUids": { "type": "array" },
+        "viewedByUids": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorId", "authorName", "authorHandle", "authorAvatarColor", "caption", "visibility", "visibleToUids", "viewedByUids", "createdAt", "updatedAt"]
+    },
+    "OnlineUser": {
+      "title": "OnlineUser",
+      "description": "Public discoverable online presence card for connecting with other people worldwide (zero PII).",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "kelMiHandle": { "type": "string" },
+        "qqNumber": { "type": "string" },
+        "displayName": { "type": "string" },
+        "avatarColorHex": { "type": "string" },
+        "preferredLanguage": { "type": "string" },
+        "gender": { "type": "string" },
+        "ageYears": { "type": "integer" },
+        "interests": { "type": "array" },
+        "locationLabel": { "type": "string" },
+        "timeZoneId": { "type": "string" },
+        "onlineStatus": { "type": "string", "enum": ["ONLINE", "AWAY"] },
+        "discoverable": { "type": "boolean" },
+        "lastActiveAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "kelMiHandle", "qqNumber", "displayName", "avatarColorHex", "preferredLanguage", "gender", "ageYears", "interests", "locationLabel", "timeZoneId", "onlineStatus", "discoverable", "lastActiveAt", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": { "$ref": "#/entities/UserProfile" }, "description": "Owner-only private user profile & PII" },
+    "/users/{userId}/contacts/{contactUid}": { "schema": { "$ref": "#/entities/UserContact" }, "description": "Owner-only saved contacts" },
+    "/users/{userId}/vetnyMessages/{messageId}": { "schema": { "$ref": "#/entities/VetnyMessage" }, "description": "Owner-only Vetny AI translation chat messages" },
+    "/handles/{handle}": { "schema": { "$ref": "#/entities/HandleIndex" }, "description": "Exact-match handle lookup index without PII" },
+    "/directory/{userId}": { "schema": { "$ref": "#/entities/PublicPreKeyBundle" }, "description": "Public Signal Protocol PreKey Bundle per user" },
+    "/directory/{userId}/oneTimePreKeys/{keyId}": { "schema": { "$ref": "#/entities/OneTimePreKey" }, "description": "Single-use One-Time PreKeys for X3DH key agreement" },
+    "/chats/{chatId}": { "schema": { "$ref": "#/entities/ChatThread" }, "description": "Encrypted chat thread metadata" },
+    "/chats/{chatId}/messages/{messageId}": { "schema": { "$ref": "#/entities/EncryptedMessage" }, "description": "End-to-end encrypted Signal Protocol message envelopes" },
+    "/chats/{chatId}/calls/{callId}": { "schema": { "$ref": "#/entities/CallSession" }, "description": "E2EE voice and video call signaling sessions" },
+    "/moments/{momentId}": { "schema": { "$ref": "#/entities/MomentPost" }, "description": "Contact-scoped Moments feed" },
+    "/reels/{reelId}": { "schema": { "$ref": "#/entities/ReelPost" }, "description": "Contact-scoped or public video and photo Reels with in-app songs" },
+    "/reels/{reelId}/comments/{commentId}": { "schema": { "$ref": "#/entities/ReelComment" }, "description": "Instagram-style comments on Reels" },
+    "/stories/{storyId}": { "schema": { "$ref": "#/entities/StoryPost" }, "description": "Instagram-style Stories feed" },
+    "/onlineUsers/{userId}": { "schema": { "$ref": "#/entities/OnlineUser" }, "description": "Public discoverable online presence cards (no email/phone/DOB)" }
+  }
+}

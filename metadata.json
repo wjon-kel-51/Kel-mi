@@ -1,0 +1,6 @@
+{
+  "name": "Kel mi",
+  "description": "End-to-end encrypted messaging app with real-time Vetny AI translation across languages.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
